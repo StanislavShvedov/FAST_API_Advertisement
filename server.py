@@ -1,11 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from sqlalchemy import select
 
+import models
 from schema import (
     CreateAdvertRequest, CreateAdvertResponse,
     UpdateAdvertRequest, UpdateAdvertResponse,
     GetAdvertResponse, SearchAdvertResponse,
-    DeleteAdvertResponse
+    DeleteAdvertResponse,
+    LoginRequest, LoginResponse
 )
 
 from lifespan import lifespan
@@ -57,8 +59,9 @@ async def search_advertisement(session: SessionDependency,
 async def update_advertisement(advertisement_id: int,
                                advertisement_data: UpdateAdvertRequest,
                                session: SessionDependency):
+    advertisement_dict = advertisement_data.model_dump(exclude_unset=True)
     advert_orm_obj = await crud.get_item_by_id(session=session, orm_cls=Advertisement, item_id=advertisement_id)
-    for field, values in advert_orm_obj.dict.items():
+    for field, values in advertisement_dict.items():
         setattr(advert_orm_obj, field, values)
     await crud.add_item(session, advert_orm_obj)
 
@@ -71,3 +74,12 @@ async def delete_advertisement(advertisement_id: int, session: SessionDependency
     await crud.delete_item(session, advert_orm_obj)
 
     return SUCCESS_RESPONSE
+
+
+# @app.post('/api/v1/login', tags=['login'], response_model=LoginResponse)
+# async def login(login_data: LoginRequest, session: SessionDependency):
+#     query = select(models.User).where(models.User.name == login_data.name)
+#     user = await session.scalars(query)
+#     if user is None:
+#         raise HTTPException(401, 'Invalid credentials')
+#

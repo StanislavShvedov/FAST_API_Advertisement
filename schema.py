@@ -47,3 +47,13 @@ class SearchAdvertResponse(BaseModel):
 
 class DeleteAdvertResponse(SuccessResponse):
     pass
+
+
+# class LoginRequest(BaseModel):
+#     name: str
+#     password: str
+#
+#
+# class LoginResponse(BaseModel):
+#     token: str
+
